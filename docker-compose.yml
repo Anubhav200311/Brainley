@@ -1,0 +1,29 @@
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: secondbrain-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    # Uncomment when you add a backend service
+    # depends_on:
+    #   - backend
+
+  # Add your backend service here later
+  # backend:
+  #   build: ./backend
+  #   container_name: secondbrain-backend
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - ./backend:/app
+  #   environment:
+  #     - NODE_ENV=development
+  #   restart: unless-stopped
