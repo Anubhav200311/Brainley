@@ -17,13 +17,13 @@ services:
     #   - backend
 
   # Add your backend service here later
-  # backend:
-  #   build: ./backend
-  #   container_name: secondbrain-backend
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - ./backend:/app
-  #   environment:
-  #     - NODE_ENV=development
-  #   restart: unless-stopped
+  backend:
+    build: ./backend
+    container_name: secondbrain-backend
+    ports:
+      - "3001:3001"
+    # volumes:
+    #   - ./backend:/app
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
