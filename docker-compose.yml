@@ -1,4 +1,3 @@
-
 services:
   frontend:
     build: ./frontend
@@ -12,18 +11,39 @@ services:
     environment:
       - NODE_ENV=development
     restart: unless-stopped
-    # Uncomment when you add a backend service
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
 
-  # Add your backend service here later
   backend:
     build: ./backend
     container_name: secondbrain-backend
     ports:
       - "3001:3001"
-    # volumes:
-    #   - ./backend:/app
+    volumes:
+      - ./backend/src:/app/src
     environment:
       - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=brainley
     restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: secondbrain-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=brainley
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
