@@ -1,0 +1,22 @@
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install ts-node-dev globally for hot reloading
+RUN npm install -g ts-node-dev
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# We don't need to copy source files because we mount them via volumes
+# This enables hot reloading and direct code changes
+
+# Expose port
+EXPOSE 3001
+
+# Use ts-node-dev for development with hot reloading
+CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]

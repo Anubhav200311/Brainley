@@ -9,8 +9,10 @@
     "dev": "ts-node-dev --respawn src/index.ts"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
     "bcrypt": "^5.1.1",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3"
   },
   "devDependencies": {
