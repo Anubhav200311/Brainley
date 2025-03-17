@@ -183,6 +183,32 @@ app.get("/contents/:id" , async(req , res) => {
         res.status(500).json({message : "Internal Sever Error"})
     }
 })
+
+app.delete('/contents/:id' , async(req , res) => {
+    const id = req.params.id;
+
+    try{
+
+        const query = await pool.query(
+            "DELETE FROM contents WHERE id = $1 RETURNING id , title" ,[id]
+        );
+
+        if (query.rowCount === 0) {
+             res.status(404).json({message: 'Content not found'});
+            return;
+        }
+        
+        res.status(200).json(
+            {message : 'record deleted successfully',
+                id: query.rows[0].id,
+                title : query.rows[0].title
+            }
+        )
+    }catch(err) {
+        console.log(err);
+        res.status(500).json({message : "Internal Server error"})
+    }
+})
 // Initialize database and start server properly
 async function startServer() {
     try {

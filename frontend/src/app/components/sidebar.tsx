@@ -17,8 +17,8 @@ export function Sidebar() {
             <div className="text-indigo-600">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="40"
+                height="40"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -31,13 +31,13 @@ export function Sidebar() {
               </svg>
             </div>
           </div>
-          <h1 className="text-xl font-bold">Second Brain</h1>
+          <h1 className="text-2xl font-bold">Second Brain</h1>
         </div>
       </div>
-      <nav className="mt-2">
+      <nav className="mt-4">
         {navItems.map((item, index) => (
-          <a key={index} href="#" className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-100">
-            <item.icon className="h-5 w-5" />
+          <a key={index} href="#" className="flex items-center gap-3 px-6 py-3.5 text-gray-700 hover:bg-gray-100 tranition-colors">
+            <item.icon className="h-8 w-8" />
             <span>{item.label}</span>
           </a>
         ))}

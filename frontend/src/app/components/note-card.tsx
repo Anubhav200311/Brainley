@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "../components/ui/card"
 import { Share, Trash, FileText, Play } from "lucide-react"
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 
 interface NoteCardProps {
   note: {
@@ -11,9 +11,14 @@ interface NoteCardProps {
     tags: string[]
     date: string
   }
+  onDelete: (id: string) => void;
+
 }
 
-export function NoteCard({ note }: NoteCardProps) {
+
+export function NoteCard({ note , onDelete }: NoteCardProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const getIcon = () => {
     if (note.type.includes("Project")) return FileText
     if (note.type.includes("Productivity")) return Play
@@ -22,6 +27,26 @@ export function NoteCard({ note }: NoteCardProps) {
 
   const Icon = getIcon()
 
+  const handleDelete = async() => {
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`http://localhost:3001/contents/${note.id}` , {
+        method: 'DELETE',
+      });
+
+      if(!response.ok) {
+        throw new Error('Failed to delete note');
+      }
+
+      onDelete(note.id);
+    }catch(err) {
+      console.error('Error deleting note' , err);
+      alert('Failed to delete note , Please try again');
+    }finally {
+      setIsDeleting(false);
+    }
+  }
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
@@ -33,7 +58,7 @@ export function NoteCard({ note }: NoteCardProps) {
           <button className="text-gray-400 hover:text-gray-600">
             <Share className="h-4 w-4" />
           </button>
-          <button className="text-gray-400 hover:text-gray-600">
+          <button className="text-gray-400 hover:text-gray-600" onClick={handleDelete} disabled = {isDeleting}>
             <Trash className="h-4 w-4" />
           </button>
         </div>
