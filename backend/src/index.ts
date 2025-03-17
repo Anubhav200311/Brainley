@@ -111,7 +111,7 @@ app.post("/login", async (req, res): Promise<void> => {
             JWT_SECRET,
             { expiresIn: '24h' }
         );
-
+        
         res.status(200).json({
             message: "Login successful",
             token,

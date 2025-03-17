@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:23-alpine AS builder
+FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -15,12 +15,12 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Run the application
-FROM node:23-alpine AS runner
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 
 # Set to production environment
-ENV NODE_ENV production
+ENV NODE_ENV development
 
 # Copy necessary files from builder stage
 COPY --from=builder /app/next.config.* ./

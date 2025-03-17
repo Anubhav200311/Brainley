@@ -1,9 +1,22 @@
+"use client"
 import { Button } from "../components/ui/button"
 import { Sidebar } from "../components/sidebar"
 import { NoteCard } from "../components/note-card"
 import { Share, Plus } from "lucide-react"
+import { useEffect } from "react"
+import { redirect } from 'next/navigation'
+ 
+
 
 export default function Home() {
+  
+
+  useEffect( () => {
+    const token = localStorage.getItem('token');
+    if(!token) {
+      redirect('/');
+    }
+  } , [])
   const notes = [
     {
       id: "1",
@@ -88,4 +101,5 @@ export default function Home() {
     </div>
   )
 }
+
 
