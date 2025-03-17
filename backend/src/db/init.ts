@@ -6,7 +6,7 @@ async function initDatabase() {
 
   while (retries < maxRetries) {
     try {
-      // Create users table
+      // Create users table - FIXED EXTRA COMMA
       await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
           id SERIAL PRIMARY KEY,
@@ -15,7 +15,21 @@ async function initDatabase() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
       `);
-
+      
+      // Create notes table with foreign key to users - FIXED TABLE NAME TO MATCH ROUTES
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS contents (
+          id SERIAL PRIMARY KEY,
+          title VARCHAR(255) NOT NULL,
+          link TEXT NOT NULL,
+          content_type VARCHAR(50) CHECK (content_type IN ('image', 'video', 'article', 'audio')),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          user_id INTEGER NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+      `);
+      
       console.log('Database tables initialized');
       return; // Exit if successful
     } catch (error) {

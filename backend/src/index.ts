@@ -64,7 +64,7 @@ app.post("/signup", async (req, res): Promise<void> => {
 
         // Insert the new user
         const newUser = await pool.query(
-            "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username, created_at",
+            "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username",
             [username, hashedPassword]
         );
 
@@ -139,6 +139,50 @@ app.get("/users", async (req, res) => {
     }
 });
 
+app.post('/contents' , async(req , res) => {
+
+    const { content_type , link , title , user_id } = req.body;
+
+    try{
+        if( !content_type || !link || !title || !user_id ){
+            res.status(401).json({message : "Please enter all the fields"})
+            return;
+        }
+
+        const validTypes = ['image', 'video', 'article', 'audio'];
+        if (!validTypes.includes(content_type)) {
+            res.status(400).json({message: `Content type must be one of: ${validTypes.join(', ')}`});
+            return;
+        }
+        const query = await pool.query("INSERT INTO contents (content_type , link , title , user_id) VALUES ($1 , $2 , $3 , $4) RETURNING id , user_id ,title", [content_type , link , title , user_id])
+
+        res.status(200).json({
+            message : "Note Created Successfuly",
+            content : query.rows[0]
+        })
+    }catch(err){
+        console.log(err)
+    }
+})
+
+app.get("/contents/:id" , async(req , res) => {
+    const user_id = req.params.id;
+
+
+    try{
+        const query = await pool.query(
+            "SELECT * FROM contents WHERE user_id = $1" , [user_id]
+        );
+
+        res.status(200).json({
+            contents : query.rows
+        })
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message : "Internal Sever Error"})
+    }
+})
 // Initialize database and start server properly
 async function startServer() {
     try {
