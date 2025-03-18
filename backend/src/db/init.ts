@@ -29,6 +29,17 @@ async function initDatabase() {
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
       `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS content_shares (
+          id SERIAL PRIMARY KEY,
+          content_id INTEGER NOT NULL,
+          share_token VARCHAR(64) UNIQUE NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          expires_at TIMESTAMP WITH TIME ZONE,
+          FOREIGN KEY (content_id) REFERENCES contents(id) ON DELETE CASCADE
+        );
+      `);
       
       console.log('Database tables initialized');
       return; // Exit if successful
@@ -42,6 +53,10 @@ async function initDatabase() {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
   }
+}
+
+export function generateShareToken() {
+  return require('crypto').randomBytes(32).toString('hex');
 }
 
 export default initDatabase;

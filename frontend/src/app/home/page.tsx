@@ -29,7 +29,17 @@ interface BackendNote {
   created_at: string;
   user_id: number;
 }
-
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Authentication token not found');
+  }
+  
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+};
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +58,9 @@ export default function Home() {
         throw new Error("User not authenticated");
       }
 
-      const response = await fetch(`http://localhost:3001/contents/${user.id}`);
+      const response = await fetch(`http://localhost:3001/contents/${user.id}` , {
+        headers: getAuthHeaders()
+      });
       
       if (!response.ok) {
         throw new Error("Failed to fetch notes");
@@ -122,9 +134,7 @@ export default function Home() {
 
       const response = await fetch('http://localhost:3001/contents', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: newNote.title,
           link: newNote.link,
@@ -170,54 +180,57 @@ export default function Home() {
   return (
     <div className="flex h-screen bg-gray-50">
       
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="container mx-auto py-6 px-4 max-w-8xl">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-extrabold tracking-tigh">All Notes</h1>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Share className="h-4 w-4" />
-                Share Brain
-              </Button>
-              <Button 
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
-                onClick={() => setDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4" />
-                Add Content
-              </Button>
-            </div>
+      <div className="h-screen sticky top-0">
+        <Sidebar />
+      </div>
+      <main className="flex-1 overflow-y-auto h-screen">
+      <div className="container mx-auto py-6 px-4 max-w-6xl min-h-full">
+        <div className="flex items-center justify-between mb-8 sticky top-0 bg-gray-50 py-2 z-10">
+          <h1 className="text-3xl font-extrabold tracking-tight">All Notes</h1>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Share className="h-4 w-4" />
+              Share Brain
+            </Button>
+            <Button 
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => setDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Content
+            </Button>
           </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 p-4 rounded-md text-red-600">
-              {error}
-            </div>
-          ) : notes.length === 0 ? (
-            <div className="text-center p-12 bg-white rounded-lg shadow-sm">
-              <h3 className="text-lg font-medium">No notes yet</h3>
-              <p className="text-gray-500 mt-2">Add your first note to get started</p>
-              <Button 
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700"
-                onClick={() => setDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Content
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {notes.map((note) => (
-                <NoteCard key={note.id} note={note} onDelete={handleDeleteNote}/>
-              ))}
-            </div>
-          )}
         </div>
+
+        {/* Rest of your content */}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 p-4 rounded-md text-red-600">
+            {error}
+          </div>
+        ) : notes.length === 0 ? (
+          <div className="text-center p-12 bg-white rounded-lg shadow-sm">
+            <h3 className="text-lg font-medium">No notes yet</h3>
+            <p className="text-gray-500 mt-2">Add your first note to get started</p>
+            <Button 
+              className="mt-4 bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => setDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Content
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+            {notes.map((note) => (
+              <NoteCard key={note.id} note={note} onDelete={handleDeleteNote}/>
+            ))}
+          </div>
+        )}
+      </div>
       </main>
 
       {/* Add Content Dialog */}

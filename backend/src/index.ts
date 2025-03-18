@@ -1,9 +1,28 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import pool from './db';
-import initDatabase from './db/init';
+import initDatabase  from './db/init';
 import jwt from 'jsonwebtoken';
+import { generateShareToken } from './db/init';
 
+
+
+const authenticateToken = (req: any, res: any, next: any) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN format
+    
+    if (!token) {
+      return res.status(401).json({ message: 'Access denied. No token provided.' });
+    }
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      req.user = decoded; // Add user info to request object
+      next();
+    } catch (error) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+  };
 const JWT_SECRET = process.env.JWT_SECRET || 'Kuchupuchu';
 const app = express();
 
@@ -126,7 +145,7 @@ app.post("/login", async (req, res): Promise<void> => {
     }
 });
 
-app.get("/users", async (req, res) => {
+app.get("/users",authenticateToken, async (req, res) => {
     try {
         const users = await pool.query("SELECT id, username, created_at FROM users");
         res.status(200).json({
@@ -139,7 +158,7 @@ app.get("/users", async (req, res) => {
     }
 });
 
-app.post('/contents' , async(req , res) => {
+app.post('/contents' ,authenticateToken , async(req , res) => {
 
     const { content_type , link , title , user_id } = req.body;
 
@@ -165,7 +184,7 @@ app.post('/contents' , async(req , res) => {
     }
 })
 
-app.get("/contents/:id" , async(req , res) => {
+app.get("/contents/:id" ,authenticateToken, async(req , res) => {
     const user_id = req.params.id;
 
 
@@ -184,7 +203,7 @@ app.get("/contents/:id" , async(req , res) => {
     }
 })
 
-app.delete('/contents/:id' , async(req , res) => {
+app.delete('/contents/:id' ,authenticateToken, async(req , res) => {
     const id = req.params.id;
 
     try{
@@ -209,6 +228,97 @@ app.delete('/contents/:id' , async(req , res) => {
         res.status(500).json({message : "Internal Server error"})
     }
 })
+app.post('/api/v1/brain/share', authenticateToken, async (req, res) => {
+    try {
+      const { contentId } = req.body;
+      
+      if (!contentId) {
+         res.status(400).json({ message: "Content ID is required" });
+         return
+      }
+      
+      // Check if content exists and belongs to the user
+      const contentQuery = await pool.query(
+        "SELECT * FROM contents WHERE id = $1", 
+        [contentId]
+      );
+      
+      if (contentQuery.rows.length === 0) {
+         res.status(404).json({ message: "Content not found" });
+         return;
+      }
+      
+      // Generate unique share token
+      const shareToken = generateShareToken();
+      
+      // Set expiry date (30 days from now)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      
+      // Store share info in database
+      await pool.query(
+        "INSERT INTO content_shares (content_id, share_token, expires_at) VALUES ($1, $2, $3)",
+        [contentId, shareToken, expiresAt]
+      );
+      
+      // Generate shareable URL
+      const shareUrl = `${process.env.FRONTEND_URL || 'http://localhost:3001'}/api/v1/brain/shared/${shareToken}`;
+      
+       res.status(201).json({
+        message: "Content shared successfully",
+        shareUrl,
+        expiresAt
+      });
+    } catch (error) {
+      console.error("Error sharing content:", error);
+       res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+app.get('/api/v1/brain/shared/:shareToken', async (req, res) => {
+    try {
+      const { shareToken } = req.params;
+      
+      // Find share by token
+      const shareQuery = await pool.query(
+        "SELECT * FROM content_shares WHERE share_token = $1 AND (expires_at IS NULL OR expires_at > NOW())",
+        [shareToken]
+      );
+      
+      if (shareQuery.rows.length === 0) {
+         res.status(404).json({ message: "Shared content not found or link expired" });
+         return;
+      }
+      
+      const share = shareQuery.rows[0];
+      
+      // Get the content
+      const contentQuery = await pool.query(
+        "SELECT * FROM contents WHERE id = $1",
+        [share.content_id]
+      );
+      
+      if (contentQuery.rows.length === 0) {
+         res.status(404).json({ message: "Content no longer exists" });
+         return;
+      }
+      
+      // Increment view count or log access if needed
+      
+       res.status(200).json({
+        message: "Shared content retrieved",
+        content: contentQuery.rows[0],
+        shareInfo: {
+          createdAt: share.created_at,
+          expiresAt: share.expires_at
+        }
+      });
+    } catch (error) {
+      console.error("Error retrieving shared content:", error);
+       res.status(500).json({ message: "Internal server error" });
+    }
+});
+  
 // Initialize database and start server properly
 async function startServer() {
     try {
