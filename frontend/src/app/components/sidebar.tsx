@@ -1,12 +1,17 @@
-import { FileText, Link, Hash, Video, Twitter } from "lucide-react"
+import { FileText, Link as LinkIcon, Hash, Video, Twitter } from "lucide-react"
 
-export function Sidebar() {
+interface SidebarProps {
+  activeFilter: string;
+  onFilterChange: (filter: string) => void;
+}
+
+export function Sidebar({ activeFilter, onFilterChange }: SidebarProps) {
   const navItems = [
-    { icon: Twitter, label: "Tweets" },
-    { icon: Video, label: "Videos" },
-    { icon: FileText, label: "Documents" },
-    { icon: Link, label: "Links" },
-    { icon: Hash, label: "Tags" },
+    { icon: Twitter, label: "Tweets", filter: "twitter" },
+    { icon: Video, label: "Videos", filter: "video" },
+    { icon: FileText, label: "Documents", filter: "article" },
+    { icon: LinkIcon, label: "Links", filter: "all" },
+    { icon: Hash, label: "Tags", filter: "tags" },
   ]
 
   return (
@@ -35,15 +40,21 @@ export function Sidebar() {
         </div>
       </div>
       <nav className="mt-4">
-        {navItems.map((item, index) => (
-          <a key={index} href="#" className="flex items-center gap-3 px-6 py-3.5 text-gray-700 hover:bg-gray-100 tranition-colors">
-            <item.icon className="h-8 w-8" />
-            <span>{item.label}</span>
-          </a>
+        {navItems.map((item) => (
+          <button 
+            key={item.filter}
+            onClick={() => onFilterChange(item.filter)}
+            className={`w-full text-left flex items-center gap-3 px-6 py-3.5 ${
+              activeFilter === item.filter 
+                ? "bg-indigo-50 text-indigo-700 border-r-4 border-indigo-600" 
+                : "text-gray-700 hover:bg-gray-100"
+            } transition-colors`}
+          >
+            <item.icon className={`h-7 w-7 ${activeFilter === item.filter ? "text-indigo-600" : "text-gray-500"}`} />
+            <span className="text-lg">{item.label}</span>
+          </button>
         ))}
       </nav>
     </aside>
   )
 }
-
-

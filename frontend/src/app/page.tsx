@@ -8,6 +8,7 @@ import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader } from "./components/ui/card"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -15,46 +16,61 @@ export default function AuthPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter(); // Add this
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!username || !password) {
-      setError("Username and password are required");
-      return;
-    }
-    
     setIsLoading(true);
     setError("");
     
     try {
-      const response = await fetch(
-        `http://localhost:3001/${isLogin ? "login" : "signup"}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
-
+      const endpoint = isLogin ? "/login" : "/signup";
+      const response = await fetch(`http://localhost:3001${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      
       const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = "/home";
-      } else {
-        setError(data.message || `${isLogin ? "Login" : "Signup"} failed`);
+      
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "Authentication failed");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      setError("An error occurred. Please try again.");
+      
+      if (!isLogin) {
+        // SIGNUP FLOW - AUTO LOGIN
+        // After successful signup, log the user in automatically
+        const loginResponse = await fetch(`http://localhost:3001/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        
+        const loginData = await loginResponse.json();
+        
+        if (!loginResponse.ok) {
+          throw new Error("Signup successful, but couldn't log you in automatically. Please log in manually.");
+        }
+        
+        // Store login data and redirect
+        localStorage.setItem("token", loginData.token);
+        localStorage.setItem("user", JSON.stringify(loginData.user));
+        
+        // Redirect to home
+        router.push("/home");
+        return;
+      }
+      
+      // LOGIN FLOW (unchanged)
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      router.push("/home");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
