@@ -1,20 +1,34 @@
 import { Pool } from 'pg';
 
-console.log('Connecting to database with params:', {
-  host: process.env.DB_HOST || 'postgres',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  user: process.env.DB_USER || 'postgres',
-  password: '********', // Don't log actual password
-  database: process.env.DB_NAME || 'brainley',
-});
+let pool: Pool;
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'postgres', 
-  port: parseInt(process.env.DB_PORT || '5432'),
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'brainley',
-});
+// Check if running on Railway (it provides DATABASE_URL)
+if (process.env.DATABASE_URL) {
+  console.log('Using Railway database connection');
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false // Required for Railway PostgreSQL
+    }
+  });
+} else {
+  // Local development with Docker Compose
+  console.log('Connecting to database with params:', {
+    host: process.env.DB_HOST || 'postgres',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    user: process.env.DB_USER || 'postgres',
+    password: '********', // Don't log actual password
+    database: process.env.DB_NAME || 'brainley',
+  });
+
+  pool = new Pool({
+    host: process.env.DB_HOST || 'postgres', 
+    port: parseInt(process.env.DB_PORT || '5432'),
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    database: process.env.DB_NAME || 'brainley',
+  });
+}
 
 // Test database connection with retries
 async function testConnection() {
