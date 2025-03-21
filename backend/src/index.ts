@@ -23,7 +23,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
       return res.status(403).json({ message: 'Invalid or expired token' });
     }
   };
-const JWT_SECRET = process.env.JWT_SECRET || 'Kuchupuchu';
+const JWT_SECRET = process.env.JWT_SECRET || 'wtfisempty';
 const app = express();
 
 // Handle uncaught exceptions and unhandled rejections
@@ -163,12 +163,12 @@ app.post('/contents' ,authenticateToken , async(req , res) => {
     const { content_type , link , title , user_id } = req.body;
 
     try{
-        if( !content_type || !link || !title || !user_id ){
+        if( !content_type || !title || !user_id ){
             res.status(401).json({message : "Please enter all the fields"})
             return;
         }
 
-        const validTypes = ['image', 'video', 'article', 'audio'];
+        const validTypes = ['image', 'video', 'document', 'twitter'];
         if (!validTypes.includes(content_type)) {
             res.status(400).json({message: `Content type must be one of: ${validTypes.join(', ')}`});
             return;

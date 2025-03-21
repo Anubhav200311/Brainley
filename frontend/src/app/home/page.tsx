@@ -52,7 +52,7 @@ export default function Home() {
   const [newNote, setNewNote] = useState({
     title: "",
     link: "",
-    content_type: "article"
+    content_type: "document"
   });
   const [activeFilter, setActiveFilter] = useState("all");
   const [toast, setToast] = useState({ show: false, message: '', type: 'error' as 'error' | 'success' });
@@ -159,12 +159,12 @@ export default function Home() {
           </div>
         );
         
-      case 'article':
+      case 'document':
         return (
           <div className="flex flex-col h-40 bg-gray-100 rounded-md p-4">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="h-5 w-5 text-gray-500" />
-              <span className="font-medium text-gray-700">Article</span>
+              <span className="font-medium text-gray-700">Document</span>
             </div>
             <p className="text-sm text-gray-700 line-clamp-3 mb-2">
               {link}
@@ -226,7 +226,7 @@ export default function Home() {
       setNewNote({
         title: "",
         link: "",
-        content_type: "article"
+        content_type: "document"
       });
     } catch (err) {
       console.error("Error adding note:", err);
@@ -268,7 +268,7 @@ export default function Home() {
         />
       </div>
       <main className="flex-1 overflow-y-auto h-screen">
-        <div className="container mx-auto py-6 px-4 max-w-6xl min-h-full">
+        <div className="container mx-auto py-6 px-4 max-w-7xl min-h-full">
           <div className="flex items-center justify-between mb-8 sticky top-0 bg-gray-50 py-2 z-10">
             <h1 className="text-3xl font-extrabold tracking-tight">
               {activeFilter === "all" ? "All Notes" : 
@@ -276,10 +276,10 @@ export default function Home() {
                `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}s`}
             </h1>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2">
+              {/* <Button variant="outline" className="flex items-center gap-2">
                 <Share className="h-4 w-4" />
                 Share Brain
-              </Button>
+              </Button> */}
               <Button
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
                 onClick={() => setDialogOpen(true)}
@@ -307,7 +307,7 @@ export default function Home() {
               <Button
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700"
                 onClick={() => {
-                  setNewNote({ ...newNote, content_type: activeFilter === "all" ? "article" : activeFilter });
+                  setNewNote({ ...newNote, content_type: activeFilter === "all" ? "document" : activeFilter });
                   setDialogOpen(true);
                 }}
               >
@@ -363,13 +363,13 @@ export default function Home() {
               <Select
                 value={newNote.content_type}
                 onValueChange={(value) => setNewNote({ ...newNote, content_type: value })}
-                defaultValue={activeFilter !== "all" && activeFilter !== "tags" ? activeFilter : "article"}
+                defaultValue={activeFilter !== "all" && activeFilter !== "tags" ? activeFilter : "document"}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select content type" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="article">Article</SelectItem>
+                <SelectContent className="bg-white border shadow-md">
+                  <SelectItem value="document">Document</SelectItem>
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="video">Video</SelectItem>
                   <SelectItem value="twitter">Twitter</SelectItem>

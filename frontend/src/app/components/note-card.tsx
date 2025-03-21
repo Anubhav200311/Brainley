@@ -10,6 +10,7 @@ interface NoteCardProps {
     content: ReactNode
     tags: string[]
     date: string
+    link?: string
   }
   onDelete: (id: string) => void;
 }
@@ -22,6 +23,22 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   const [copied, setCopied] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   
+
+  const handleCardClick = (event: React.MouseEvent) => {
+    // Don't open link if clicking on share/delete buttons or share popover
+    if (
+      event.target instanceof HTMLElement && 
+      (event.target.closest('button') || 
+       event.target.closest('.share-popover'))
+    ) {
+      return;
+    }
+    
+    // Open the link in a new tab
+    if (note.link) {
+      window.open(note.link, '_blank', 'noopener,noreferrer');
+    }
+  };
   // Close popover when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -39,7 +56,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   const getIcon = () => {
     if (note.type === 'image') return FileText; // Replace with Image icon
     if (note.type === 'video') return Play;
-    if (note.type === 'article') return FileText;
+    if (note.type === 'document') return FileText;
     return FileText;
   }
 
@@ -119,7 +136,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-200" onClick={handleCardClick}>
       <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-gray-500" />

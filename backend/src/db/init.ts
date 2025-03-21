@@ -22,7 +22,7 @@ async function initDatabase() {
           id SERIAL PRIMARY KEY,
           title VARCHAR(255) NOT NULL,
           link TEXT NOT NULL,
-          content_type VARCHAR(50) CHECK (content_type IN ('image', 'video', 'article', 'audio')),
+          content_type VARCHAR(50) CHECK (content_type IN ('image', 'video', 'document', 'twitter')),
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           user_id INTEGER NOT NULL,

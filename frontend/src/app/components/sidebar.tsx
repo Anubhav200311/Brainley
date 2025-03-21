@@ -9,7 +9,7 @@ export function Sidebar({ activeFilter, onFilterChange }: SidebarProps) {
   const navItems = [
     { icon: Twitter, label: "Tweets", filter: "twitter" },
     { icon: Video, label: "Videos", filter: "video" },
-    { icon: FileText, label: "Documents", filter: "article" },
+    { icon: FileText, label: "Documents", filter: "document" },
     { icon: LinkIcon, label: "Links", filter: "all" },
     { icon: Hash, label: "Tags", filter: "tags" },
   ]
