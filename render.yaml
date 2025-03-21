@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: secondbrain
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: secondbrain-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: secondbrain-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: secondbrain-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: secondbrain-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: secondbrain-db
+          property: database
+
+databases:
+  - name: secondbrain-db
+    databaseName: brainley
+    plan: starter
