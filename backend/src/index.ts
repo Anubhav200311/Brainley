@@ -52,11 +52,11 @@ app.use((req, res, next)  => {
 });
 
 // Define routes
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
     res.json({ message: "backend up and running" });
 });
 
-app.post("/signup", async (req, res): Promise<void> => {
+app.post("/api/signup", async (req, res): Promise<void> => {
     try {
         const { username, password } = req.body;
 
@@ -97,7 +97,7 @@ app.post("/signup", async (req, res): Promise<void> => {
     }
 });
 
-app.post("/login", async (req, res): Promise<void> => {
+app.post("/api/login", async (req, res): Promise<void> => {
     try {
         const { username, password } = req.body;
 
@@ -145,7 +145,7 @@ app.post("/login", async (req, res): Promise<void> => {
     }
 });
 
-app.get("/users",authenticateToken, async (req, res) => {
+app.get("/api/users",authenticateToken, async (req, res) => {
     try {
         const users = await pool.query("SELECT id, username, created_at FROM users");
         res.status(200).json({
@@ -158,7 +158,7 @@ app.get("/users",authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/contents' ,authenticateToken , async(req , res) => {
+app.post('/api/contents' ,authenticateToken , async(req , res) => {
 
     const { content_type , link , title , user_id } = req.body;
 
@@ -184,7 +184,7 @@ app.post('/contents' ,authenticateToken , async(req , res) => {
     }
 })
 
-app.get("/contents/:id" ,authenticateToken, async(req , res) => {
+app.get("/api/contents/:id" ,authenticateToken, async(req , res) => {
     const user_id = req.params.id;
 
 
@@ -203,7 +203,7 @@ app.get("/contents/:id" ,authenticateToken, async(req , res) => {
     }
 })
 
-app.delete('/contents/:id' ,authenticateToken, async(req , res) => {
+app.delete('/api/contents/:id' ,authenticateToken, async(req , res) => {
     const id = req.params.id;
 
     try{

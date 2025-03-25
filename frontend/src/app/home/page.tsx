@@ -10,6 +10,7 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { getYouTubeVideoId, getTwitterTweetId } from "../lib/media-utils";
+import { API_URL } from "../../../config"
 
 // Types
 interface Note {
@@ -67,7 +68,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/contents/${user.id}`, {
+      const response = await fetch(`${API_URL}/api/contents/${user.id}`, {
         headers: getAuthHeaders()
       });
 
@@ -198,7 +199,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/contents', {
+      const response = await fetch(`${API_URL}/api/contents`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

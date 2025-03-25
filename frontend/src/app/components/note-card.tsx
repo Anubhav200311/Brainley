@@ -1,6 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "../components/ui/card"
 import { Share, Trash, FileText, Play, Copy, Check } from "lucide-react"
 import { useState, useRef, useEffect, type ReactNode } from "react"
+import { API_URL } from "../../../config"
 
 interface NoteCardProps {
   note: {
@@ -69,7 +70,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
       if (!token) {
       throw new Error('Authentication token not found');
       }
-      const response = await fetch(`http://localhost:3001/contents/${note.id}`, {
+      const response = await fetch(`${API_URL}/api/contents/${note.id}`, {
         headers : {
           'Authorization': `Bearer ${token}`
         },
@@ -100,7 +101,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
         return;
       }
       
-      const response = await fetch('http://localhost:3001/api/v1/brain/share', {
+      const response = await fetch(`${API_URL}/api/v1/brain/share`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

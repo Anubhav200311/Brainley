@@ -9,6 +9,7 @@ import { Label } from "./components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader } from "./components/ui/card"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { API_URL } from "../../config"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -25,7 +26,7 @@ export default function AuthPage() {
     
     try {
       const endpoint = isLogin ? "/login" : "/signup";
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`${API_URL}/api${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -40,7 +41,7 @@ export default function AuthPage() {
       if (!isLogin) {
         // SIGNUP FLOW - AUTO LOGIN
         // After successful signup, log the user in automatically
-        const loginResponse = await fetch(`http://localhost:3001/login`, {
+        const loginResponse = await fetch(`${API_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password }),
